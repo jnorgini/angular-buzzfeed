@@ -21,34 +21,50 @@ export class QuizzComponent implements OnInit {
   finished: boolean = false;
 
   ngOnInit(): void {
-      if(quizz_questions) {
-        this.finished = false;
-        this.title = quizz_questions.title;
+    if (quizz_questions) {
+      this.finished = false;
+      this.title = quizz_questions.title;
 
-        this.questions = quizz_questions.questions;
-        this.questionSelected = this.questions[this.questionIndex];
+      this.questions = quizz_questions.questions;
+      this.questionSelected = this.questions[this.questionIndex];
 
-        this.questionMaxIndex = 0;
-        this.questionMaxIndex = this.questions.length;
+      this.questionMaxIndex = 0;
+      this.questionMaxIndex = this.questions.length;
 
-        console.log(this.questionIndex);
-        console.log(this.questionMaxIndex);
-      }
+      console.log(this.questionIndex);
+      console.log(this.questionMaxIndex);
+    }
   }
 
   playerChoice(value: string) {
     this.answers.push(value)
-    console.log(this.answers)
+    this.nextStep()
   }
 
   async nextStep() {
     this.questionIndex += 1;
 
-    if(this.questionMaxIndex > this.questionIndex) {
+    if (this.questionMaxIndex > this.questionIndex) {
       this.questionSelected = this.questions[this.questionIndex]
     } else {
+      const finalAnswer: string = await this.checkResult(this.answers)
       this.finished = true;
+      this.answerSelected = quizz_questions.results[finalAnswer as keyof typeof quizz_questions.results]
     }
+  }
+
+  async checkResult(answers: string[]) {
+    const result = answers.reduce((previous, current, i, arr) => {
+      if (
+        arr.filter(item => item === previous).length >
+        arr.filter(item => item === current).length
+      ) {
+        return previous;
+      } else {
+        return current;
+      }
+    })
+    return result;
   }
 
 }
